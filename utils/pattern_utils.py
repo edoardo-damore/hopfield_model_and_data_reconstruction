@@ -11,6 +11,13 @@ def generate_patterns(pattern_lenght: int, N: int):
   return np.random.randint(0, 2, size=(N, pattern_lenght)) * 2 - 1
 
 def corrupt_patterns(patterns: np.ndarray, corruption_type: str = "Flip", q: float = 0.1):
+  """
+  `corruption_type` lets you chose the type of corruption applied to `patterns`:
+  - "Flip": flips each bit with probability `q`
+  - "Erase": sets a fraction `q` of the bits to -1
+  - "ImErase": treats the single pattern as an image, setting a fraction `~q` of its bits starting from the bottom. 
+  The pattern lenght must be a perfect square
+  """
   try:
     assert q >= 0 and q <= 1
   except:
@@ -21,13 +28,28 @@ def corrupt_patterns(patterns: np.ndarray, corruption_type: str = "Flip", q: flo
     case "Flip":
       corrupted = patterns.copy()
       for p in corrupted:
-        choice = np.random.choice([0,1], size=p.shape[0], p=[q, 1-q])
-        p = np.where(choice == 0, p, -p)
+        choice = np.random.choice([0,1], size=p.shape, p=[1-q, q])
+        p[:] = np.where(choice == 0, p, -p)
       return corrupted
+    
     case "Erase":
       corrupted = patterns.copy()
-      threshold = int(np.floor(corrupted.shape[1] * q))
-      corrupted[:,threshold:] = 0
+      threshold = int(np.floor(corrupted.shape[1] * (1-q)))
+      corrupted[:,threshold:] = -1
+      return corrupted
+    
+    case "ImErase":
+      try:
+        assert np.allclose(np.sqrt(patterns.shape[1]) % 1, 0)
+      except:
+        print("Pattern lenght is not a perfect square!")
+        return
+
+      corrupted = patterns.copy()
+      l = int(np.sqrt(corrupted.shape[1]))
+      threshold = int(l * (1-q))
+      for p in corrupted:
+        p.reshape(l,l)[threshold:] = -1
       return corrupted
     case _:
       print("Please select a valid corruption_type")
