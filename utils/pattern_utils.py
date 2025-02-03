@@ -56,6 +56,19 @@ def corrupt_patterns(patterns: np.ndarray, corruption_type: str = "Flip", q: flo
       return
     
 
+def maximum_recall(pattern_lenght: int, degree: int):
+  """
+  Returns the expected number of patterns a modern hopfield network of size `pattern_lenght` 
+  whose energy functions is a polynomial of order `degree` can recall
+  """
+  return pattern_lenght**(degree - 1) / (2 * _double_factorial(2 * degree - 3) * np.log(pattern_lenght)) 
+
+def _double_factorial(N: int):
+  if N > 0:
+    return N * _double_factorial(N - 2)
+  else:
+    return 1
+
 
 
 def visualize_patterns(patterns: np.ndarray):
