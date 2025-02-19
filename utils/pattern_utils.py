@@ -2,13 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def generate_patterns(pattern_lenght: int, N: int):
+def generate_patterns(pattern_lenght: int, N: int, q: float = 0.5):
   """
   `pattern_lenght`: how many bits is each pattern long \n
   `N`: number of patterns generated \n
+  `q`: probability of each element of having value -1 \n
   Returns a ndarray of shape (`N`, `pattern_lenght`) containing in each of its rows a different casual pattern
   """
-  return np.random.randint(0, 2, size=(N, pattern_lenght)) * 2 - 1
+  try:
+    assert (q >= 0) and (q <= 1)
+  except:
+    print("q must be in the range [0,1]")
+    return
+  return np.random.choice([-1,1], size=(N,pattern_lenght), p=[q, 1-q])
 
 def corrupt_patterns(patterns: np.ndarray, corruption_type: str = "Flip", q: float = 0.1):
   """
