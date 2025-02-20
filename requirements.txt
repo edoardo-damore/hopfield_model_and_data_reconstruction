@@ -4,3 +4,5 @@ pillow
 jupyterlab
 pandas
 scipy
+noisify
+seaborn
